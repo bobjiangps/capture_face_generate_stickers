@@ -19,7 +19,7 @@ while cap.isOpened():
     ret, img = cap.read()
     cv2.imshow("show emotion on your face, press s to generate sticker", img)
     user_input = cv2.waitKey(1)
-    if user_input == ord('s'):
+    if user_input == ord('r'):
         # file_name = "face_%s.jpg" % time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
         # cv2.imwrite(os.path.join(save_file_path,file_name), img)
         # print("file saved to %s..." % os.path.join(save_file_path,file_name))
@@ -28,7 +28,7 @@ while cap.isOpened():
         print("there are %d faces" % len(faces))
         font = cv2.FONT_HERSHEY_SIMPLEX
         if len(faces) > 0:
-            messagebox.showinfo("Good", "%d face recognized!!" % len(faces))
+            cv2.putText(img, "Face recognized: " + str(len(faces)), (20, 100), font, 0.8, (0, 255, 0), 1, cv2.LINE_AA)
             for face in faces:
                 shape = predictor(img, face)
                 for pt in shape.parts():

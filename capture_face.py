@@ -20,9 +20,9 @@ while cap.isOpened():
     ret, img = cap.read()
     cv2.imshow("show emotion on your face, press s to generate sticker", img)
     user_input = cv2.waitKey(1)
-    if user_input == ord('r'):
-        img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        faces = detector(img_gray, 1)
+    if user_input == ord('g'):
+        img_from_camera = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        faces = detector(img_from_camera, 1)
         print("there are %d faces" % len(faces))
         font = cv2.FONT_HERSHEY_SIMPLEX
         if len(faces) > 0:
@@ -41,9 +41,7 @@ while cap.isOpened():
                 else:
                     height_max = height_max
 
-                print("窗口大小："
-                      , '\n', "高度 / height:", height_max
-                      , '\n', "宽度 / width: ", width_sum)
+                print("face area", "height:", height_max, "width: ", width_sum)
 
                 img_blank = np.zeros((height_max, width_sum, 3), np.uint8)
                 blank_start = 0
@@ -70,8 +68,7 @@ while cap.isOpened():
                 face_img = face_img.resize((68, 68), Image.ANTIALIAS)
                 template_img.paste(face_img, (97, 63))
                 template_img.show()
-
-
+                print("generate stickers completely")
             except Exception as e:
                 print("error.. continue capturing: %s" % str(e))
                 continue

@@ -4,6 +4,7 @@ import cv2
 import time
 import os
 from tkinter import messagebox
+from PIL import Image
 
 
 save_file_path = os.path.join(os.getcwd(), "saved_face")
@@ -56,10 +57,23 @@ while cap.isOpened():
                 file_name = "face_%s.jpg" % time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
                 cv2.imwrite(os.path.join(save_file_path,file_name), img_blank)
                 print("file saved to %s..." % os.path.join(save_file_path,file_name))
+                gray_face_path = os.path.join(save_file_path, file_name.split(".")[0]+"new.jpg")
+                image_gray = cv2.imread(os.path.join(save_file_path,file_name), cv2.IMREAD_GRAYSCALE)
+                #ret, thresh = cv2.threshold(image_gray, 50, 255, cv2.THRESH_BINARY)
+                cv2.imwrite(gray_face_path, image_gray)
                 cv2.putText(img_blank, " Face recognized: " + str(len(faces)), (20, 100), font, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
                 cv2.imshow("only 1 face to be saved", img_blank)
-            except:
-                print("error.. continue capturing")
+                time.sleep(1)
+
+                template_img = Image.open(os.path.join(os.getcwd(), "data", "template.jpg"))
+                face_img = Image.open(gray_face_path)
+                face_img = face_img.resize((68, 68), Image.ANTIALIAS)
+                template_img.paste(face_img, (97, 63))
+                template_img.show()
+
+
+            except Exception as e:
+                print("error.. continue capturing: %s" % str(e))
                 continue
         else:
             messagebox.showinfo("Sad", "NO face recognized!!")

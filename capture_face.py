@@ -3,11 +3,14 @@ import numpy as np
 import cv2
 import time
 import os
+import platform
 from tkinter import messagebox
 from PIL import Image
 
 
 save_file_path = os.path.join(os.getcwd(), "saved_face")
+if not os.path.exists(save_file_path):
+    os.mkdir(save_file_path)
 data_path = os.path.join(os.getcwd(), "data")
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(os.path.join(os.getcwd(), "data", "shape_predictor_68_face_landmarks.dat"))
@@ -18,7 +21,7 @@ print(cap.get(3),cap.get(4))
 
 while cap.isOpened():
     ret, img = cap.read()
-    cv2.imshow("show emotion on your face, press s to generate sticker", img)
+    cv2.imshow("show emotion on your face, press g to generate sticker", img)
     user_input = cv2.waitKey(1)
     if user_input == ord('g'):
         img_from_camera = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -57,9 +60,17 @@ while cap.isOpened():
                 print("file saved to %s..." % os.path.join(save_file_path,file_name))
                 gray_face_path = os.path.join(save_file_path, file_name.split(".")[0]+"new.jpg")
                 image_gray = cv2.imread(os.path.join(save_file_path,file_name), cv2.IMREAD_GRAYSCALE)
-                #ret, thresh = cv2.threshold(image_gray, 50, 255, cv2.THRESH_BINARY)
-                cv2.imwrite(gray_face_path, image_gray)
-                cv2.putText(img_blank, " Face recognized: " + str(len(faces)), (20, 100), font, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+                ret, thresh = cv2.threshold(image_gray, 50, 255, cv2.THRESH_BINARY)
+                cv2.imwrite(gray_face_path, thresh)
+                cv2.putText(img_blank, str(len(faces)) + " Face recognized ", (20, 100), font, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+
+                shape = predictor(img, faces[0])
+                for pt in shape.parts():
+                    pt_pos = (pt.x, pt.y)
+                    cv2.circle(img, pt_pos, 2, (0, 255, 0), 1)
+                cv2.imshow("feature points", img)
+                print("feature points coordinates: %s" % str(shape.parts()))
+
                 cv2.imshow("only 1 face to be saved", img_blank)
                 time.sleep(1)
 
@@ -73,7 +84,13 @@ while cap.isOpened():
                 print("error.. continue capturing: %s" % str(e))
                 continue
         else:
-            messagebox.showinfo("Sad", "NO face recognized!!")
+            if platform.system().find("Darwin") < 0:
+                messagebox.showinfo("Sad", "NO face recognized!!")
+            else:
+                img_message = np.zeros((200, 200, 3), np.uint8)
+                cv2.putText(img_message, str(len(faces)) + " Face recognized ", (20, 100), font, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+                cv2.imshow("NO face recognized!!", img_message)
+
     if user_input == ord('q'):
         break
 

@@ -32,7 +32,7 @@ while cap.isOpened():
             try:
                 height_max = 0
                 width_sum = 0
-                my_face = faces[0] #only get first face,if get all, please set in a loop
+                my_face = faces[0] #only get first face
 
                 pos_start = tuple([my_face.left(), my_face.top()])
                 pos_end = tuple([my_face.right(), my_face.bottom()])
@@ -41,8 +41,6 @@ while cap.isOpened():
                 width_sum += width
                 if height > height_max:
                     height_max = height
-                else:
-                    height_max = height_max
 
                 print("face area", "height:", height_max, "width: ", width_sum)
 
@@ -59,9 +57,23 @@ while cap.isOpened():
                 cv2.imwrite(os.path.join(save_file_path,file_name), img_blank)
                 print("file saved to %s..." % os.path.join(save_file_path,file_name))
                 gray_face_path = os.path.join(save_file_path, file_name.split(".")[0]+"new.jpg")
-                image_gray = cv2.imread(os.path.join(save_file_path,file_name), cv2.IMREAD_GRAYSCALE)
-                ret, thresh = cv2.threshold(image_gray, 50, 255, cv2.THRESH_BINARY)
-                cv2.imwrite(gray_face_path, thresh)
+
+                #show the gray image
+                # image_gray = cv2.imread(os.path.join(save_file_path,file_name), cv2.IMREAD_GRAYSCALE)
+                # cv2.imwrite(gray_face_path, image_gray)
+
+                #show the image of Thresholding of gray image, kind 1
+                # image_gray = cv2.imread(os.path.join(save_file_path,file_name), cv2.IMREAD_GRAYSCALE)
+                # ret, thresh = cv2.threshold(image_gray, 50, 255, cv2.THRESH_BINARY)
+                # cv2.imwrite(gray_face_path, thresh)
+
+                #show the image of Thresholding of gray image, kind 2
+                image_gray = cv2.cvtColor(cv2.imread(os.path.join(save_file_path,file_name)), cv2.COLOR_RGB2GRAY)
+                #binary = cv2.adaptiveThreshold(image_gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 5)
+                #binary = cv2.adaptiveThreshold(image_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 25, 10)
+                binary = cv2.adaptiveThreshold(image_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 25, 8)
+                cv2.imwrite(gray_face_path, binary)
+
                 cv2.putText(img_blank, str(len(faces)) + " Face recognized ", (20, 100), font, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
 
                 shape = predictor(img, faces[0])
